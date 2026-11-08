@@ -51,3 +51,48 @@ impl ThemeRegistry {
     pub fn count(&self) -> usize { self.themes.len() }
 }
 impl Default for ThemeRegistry { fn default() -> Self { Self::new() } }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_accent_color_hex() {
+        let c = AccentColor::new(0x12, 0x34, 0x56);
+        assert_eq!(c.hex(), "#123456");
+    }
+
+    #[test]
+    fn test_sigma_blue() {
+        let c = AccentColor::sigma_blue();
+        assert_eq!(c.hex(), "#407BFF");
+    }
+
+    #[test]
+    fn test_theme_variants() {
+        let variants = vec![ThemeVariant::Light, ThemeVariant::Dark, ThemeVariant::Auto];
+        assert_eq!(variants.len(), 3);
+    }
+
+    #[test]
+    fn test_registry_new_has_default() {
+        let reg = ThemeRegistry::new();
+        assert_eq!(reg.count(), 1);
+        assert!(reg.active_theme().is_some());
+    }
+
+    #[test]
+    fn test_registry_register_and_activate() {
+        let mut reg = ThemeRegistry::new();
+        let theme = Theme::sigma_default();
+        let name = theme.name.clone();
+        reg.register(theme);
+        assert!(reg.set_active(&name).is_ok());
+    }
+
+    #[test]
+    fn test_registry_activate_missing_fails() {
+        let mut reg = ThemeRegistry::new();
+        assert!(reg.set_active("nonexistent").is_err());
+    }
+}
